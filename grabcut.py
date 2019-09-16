@@ -62,8 +62,9 @@ class App():
 
         elif event == cv.EVENT_MOUSEMOVE:
             if self.rectangle == True:
-                self.img = self.copy.copy()
-                cv.rectangle(self.img, (self.ix, self.iy), (x, y), self.BLUE, 2)
+                self.input = self.copy.copy()
+                cv.rectangle(self.input, (self.ix, self.iy), (x, y), self.BLUE,
+                             2)
                 self.rect = (min(self.ix, x), min(self.iy, y), abs(self.ix - x),
                              abs(self.iy - y))
                 self.rect_or_mask = 0
@@ -71,7 +72,7 @@ class App():
         elif event == cv.EVENT_RBUTTONUP:
             self.rectangle = False
             self.rect_over = True
-            cv.rectangle(self.img, (self.ix, self.iy), (x, y), self.BLUE, 2)
+            cv.rectangle(self.input, (self.ix, self.iy), (x, y), self.BLUE, 2)
             self.rect = (min(self.ix, x), min(self.iy, y), abs(self.ix - x),
                          abs(self.iy - y))
             self.rect_or_mask = 0
@@ -83,14 +84,14 @@ class App():
 
             else:
                 self.drawing = True
-                cv.circle(self.img, (x,y), self.thickness,
+                cv.circle(self.input, (x,y), self.thickness,
                           self.value['color'], -1)
                 cv.circle(self.mask, (x,y), self.thickness,
                           self.value['val'], -1)
 
         elif event == cv.EVENT_MOUSEMOVE:
             if self.drawing == True:
-                cv.circle(self.img, (x, y), self.thickness,
+                cv.circle(self.input, (x, y), self.thickness,
                           self.value['color'], -1)
                 cv.circle(self.mask, (x, y), self.thickness,
                           self.value['val'], -1)
@@ -98,7 +99,7 @@ class App():
         elif event == cv.EVENT_LBUTTONUP:
             if self.drawing == True:
                 self.drawing = False
-                cv.circle(self.img, (x, y), self.thickness,
+                cv.circle(self.input, (x, y), self.thickness,
                           self.value['color'], -1)
                 cv.circle(self.mask, (x, y), self.thickness,
                           self.value['val'], -1)
@@ -115,9 +116,9 @@ class App():
         self.rect_over = False
         self.value = self.DRAW_FG
 
-        self.img = self.copy.copy()
-        self.mask = np.zeros(self.img.shape[:2], dtype = np.uint8)
-        self.output = np.zeros(self.img.shape, np.uint8)
+        self.input = self.copy.copy()
+        self.mask = np.zeros(self.input.shape[:2], dtype = np.uint8)
+        self.output = np.zeros(self.input.shape, np.uint8)
 
 
     def crop_to_alpha(self, img):
@@ -160,11 +161,11 @@ class App():
         elif len(sys.argv) == 3: filename, self.outfile = sys.argv[1:3]
         else: raise Exception('Usage: grabcut.py <input> [output]')
 
-        self.img    = cv.imread(filename)
-        self.copy   = self.img.copy()             # a copy of original image
-        self.mask   = np.zeros(self.img.shape[:2], dtype = np.uint8)
-        self.output = np.zeros(self.img.shape, np.uint8)
-        self.alpha  = np.zeros(self.img.shape[:2], dtype = np.uint8)
+        self.input    = cv.imread(filename)
+        self.copy   = self.input.copy()             # a copy of original image
+        self.mask   = np.zeros(self.input.shape[:2], dtype = np.uint8)
+        self.output = np.zeros(self.input.shape, np.uint8)
+        self.alpha  = np.zeros(self.input.shape[:2], dtype = np.uint8)
 
 
     def run(self):
@@ -175,16 +176,16 @@ class App():
         cv.namedWindow('output')
         cv.namedWindow('input')
         cv.setMouseCallback('input', self.onmouse)
-        cv.moveWindow('input', self.img.shape[1] + 10, 90)
+        cv.moveWindow('input', self.input.shape[1] + 10, 90)
 
         print('Draw a rectangle around the object using right mouse button')
 
         while True:
             cv.imshow('output', self.output)
-            cv.imshow('input', self.img)
+            cv.imshow('input',  self.input)
             k = cv.waitKey(1)
 
-            # key bindings
+            # Key bindings
             if k == 27 or k == ord('q'): break # exit
             elif k == ord('0'): self.value = self.DRAW_BG
             elif k == ord('1'): self.value = self.DRAW_FG
@@ -193,6 +194,7 @@ class App():
             elif k == ord('s'): self.save()
             elif k == ord('r'): self.reset()
             elif k == ord('n'): self.segment()
+            else: continue
 
             self.alpha = np.where((self.mask == 1) + (self.mask == 3), 255,
                                   0).astype('uint8')

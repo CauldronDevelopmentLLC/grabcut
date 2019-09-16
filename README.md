@@ -5,10 +5,12 @@ the grab cut algorithm and OpenCV.
 
 This code was derived from the Grab Cut example from the OpenCV project.
 
-## Example
+## Examples
 
 ![Orignal Image](example/buildbotics_cnc_controller-orig.jpg)
 ![Result Image](example/buildbotics_cnc_controller.png)
+![Orignal Image](example/forest_cat-orig.jpg)
+![Result Image](example/forest_cat-final.png)
 
 ## Usage
     grabcut.py <input> [output]
